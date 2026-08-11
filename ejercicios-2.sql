@@ -66,3 +66,30 @@ delimiter ;
 SELECT fn_factorial_01(5)
 
 -- 4 -----------------------------------------------------------
+
+DROP FUNCTION if EXISTS fn_factorial_summation_01;
+
+delimiter $$
+CREATE FUNCTION fn_factorial_summation_01(
+	p_val1 INT 
+)
+RETURNS INT
+BEGIN 
+	DECLARE v_result INT DEFAULT 1;
+	DECLARE v_sum INT DEFAULT 0;
+	DECLARE v_temp INT;
+	FOR i IN 1..p_val1 do
+		SET v_result := v_result * i;
+	END FOR;
+	SET v_temp := v_result;
+	while v_temp > 0 do
+		SET v_sum := v_sum + (v_temp % 10);
+		SET v_temp := floor(v_temp / 10);
+	END while;
+	RETURN v_sum;
+END;
+$$
+delimiter ;
+
+SELECT fn_factorial_summation_01(5)
+	

@@ -1,5 +1,6 @@
+-- 1 -----------------------------------------------------------
 
--- SELECT * FROM countries;
+SELECT * FROM countries;
 
 DROP FUNCTION if EXISTS fn_get_country_attribute_by_id;
 
@@ -25,6 +26,10 @@ END;
 $$
 delimiter ;
 
--- SELECT fn_get_country_attribute_by_id('COL', 'name');
+SELECT fn_get_country_attribute_by_id('COL', 'name');
 SELECT fn_get_country_attribute_by_id('COL', 'continent');
 
+-- 2 -----------------------------------------------------------
+-- 3 -----------------------------------------------------------
+-- 4 -----------------------------------------------------------
+-- 5 -----------------------------------------------------------
