@@ -111,12 +111,4 @@ END;
 $$
 delimiter ;
 
-SELECT fn_is_triangle_area_even_01(3, 5)
-	
-	
-	
-	
-	
-	
-	
-	
+SELECT fn_is_triangle_area_even_01(3, 5)	
