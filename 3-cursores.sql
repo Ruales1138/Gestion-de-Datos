@@ -88,5 +88,111 @@ delimiter ;
 SELECT fn_get_cities_by_country_name('Colombia');
 
 -- 3 -----------------------------------------------------------
+
+DROP FUNCTION if EXISTS fn_get_languages_by_country_name;
+
+delimiter $$
+CREATE FUNCTION fn_get_languages_by_country_name(
+	p_country_name TYPE OF countries.`name`
+)
+RETURNS TEXT
+DETERMINISTIC
+BEGIN
+	DECLARE v_country_id TYPE OF countries.id;
+	DECLARE v_languague_name TYPE OF countries_languages.language_id;
+	DECLARE v_all_languages TEXT DEFAULT '';
+	DECLARE v_done BOOLEAN DEFAULT FALSE;
+	
+	DECLARE c_county CURSOR FOR 
+		SELECT id
+		FROM countries
+		WHERE `name` = p_country_name;
+		
+	DECLARE c_languages CURSOR FOR 
+		SELECT language_id
+		FROM countries_languages
+		WHERE country_id = v_country_id;
+		
+	DECLARE CONTINUE handler FOR NOT FOUND 
+		SET v_done = TRUE;
+		
+	OPEN c_county;
+	fetch c_county INTO v_country_id;
+	close c_county;
+	
+	OPEN c_languages;
+	loop_languages: loop
+		fetch c_languages INTO v_languague_name;
+		if v_all_languages = '' then
+			SET v_all_languages = v_languague_name;
+		END if;
+		SET v_all_languages := CONCAT(v_all_languages, ', ', v_languague_name);
+		if v_done then
+			leave loop_languages;
+		END if;
+	END loop;
+	close c_languages;
+	
+	RETURN v_all_languages;
+END
+$$
+delimiter ;
+
+SELECT fn_get_languages_by_country_name('Colombia');
+
 -- 4 -----------------------------------------------------------
+
+DROP FUNCTION if EXISTS fn_get_main_language_by_country_name;
+
+delimiter $$
+CREATE FUNCTION fn_get_main_language_by_country_name(
+	p_country_name TYPE OF countries.`name`
+)
+RETURNS TYPE OF countries_languages.language_id
+DETERMINISTIC
+BEGIN
+	DECLARE v_country_id TYPE OF countries.id;
+	DECLARE v_language_name TYPE OF countries_languages.language_id DEFAULT NULL;
+	DECLARE v_language_percentage TYPE OF countries_languages.percentage DEFAULT NULL;
+	DECLARE v_main_language TYPE OF countries_languages.language_id DEFAULT NULL;
+	DECLARE v_max FLOAT DEFAULT 0;
+	DECLARE v_done BOOLEAN DEFAULT FALSE;
+	
+	DECLARE c_county CURSOR FOR 
+		SELECT id
+		FROM countries
+		WHERE `name` = p_country_name;
+		
+	DECLARE c_languages CURSOR FOR 
+		SELECT language_id, percentage
+		FROM countries_languages
+		WHERE country_id = v_country_id;
+		
+	DECLARE CONTINUE handler FOR NOT FOUND 
+		SET v_done = TRUE;
+		
+	OPEN c_county;
+	fetch c_county INTO v_country_id;
+	close c_county;
+	
+	OPEN c_languages;
+	loop_languages: loop
+		fetch c_languages INTO v_language_name, v_language_percentage;
+		if v_language_percentage > v_max then
+			SET v_max := v_language_percentage;
+			SET v_main_language := v_language_name;
+		END if;
+		if v_done then
+			leave loop_languages;
+		END if;
+	END loop;
+	close c_languages;
+	
+	RETURN v_main_language;
+END
+$$
+delimiter ;
+
+SELECT fn_get_main_language_by_country_name('Colombia');
+
 -- 5 -----------------------------------------------------------
