@@ -196,3 +196,31 @@ delimiter ;
 SELECT fn_get_main_language_by_country_name('Colombia');
 
 -- 5 -----------------------------------------------------------
+
+DROP FUNCTION if EXISTS fn_get_country_name_by_city_name;
+
+delimiter $$
+CREATE FUNCTION fn_get_country_name_by_city_name(
+	p_city_name TYPE OF cities.`name`
+)
+RETURNS TYPE OF countries.`name`
+DETERMINISTIC
+BEGIN
+	DECLARE v_country_id TYPE OF countries.id DEFAULT NULL;
+	
+	DECLARE c_country CURSOR FOR
+		SELECT country_id
+		FROM cities
+		WHERE `name` = p_city_name;
+		
+	OPEN c_country;
+	fetch c_country INTO v_country_id;
+	close c_country;
+	
+	RETURN fn_get_country_attribute_by_id(v_country_id, 'name');
+END
+$$
+delimiter ;
+
+SELECT fn_get_country_name_by_city_name('Medellin')
+
