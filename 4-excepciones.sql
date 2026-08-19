@@ -117,3 +117,45 @@ CALL pr_add_language('COL', 'Italian', 'F', @records);
 SELECT @records AS registros_insertados;
 
 -- 4 -----------------------------------------------------------
+
+DROP FUNCTION IF EXISTS fn_get_country_attribute_by_id;
+
+DELIMITER $$
+CREATE FUNCTION fn_get_country_attribute_by_id(
+    p_country_id TYPE OF countries.id,
+    p_attribute VARCHAR(100)
+)
+RETURNS VARCHAR(100)
+BEGIN
+    DECLARE v_result VARCHAR(100) DEFAULT NULL;
+
+    DECLARE c_name CURSOR FOR
+        SELECT name
+        FROM countries
+        WHERE id = p_country_id;
+
+    DECLARE c_continent CURSOR FOR
+        SELECT continent
+        FROM countries
+        WHERE id = p_country_id;
+
+    DECLARE EXIT HANDLER FOR NOT FOUND
+        SET v_result = 'País no encontrado';
+
+    IF LOWER(p_attribute) = 'name' THEN
+        OPEN c_name;
+        FETCH c_name INTO v_result;
+        CLOSE c_name;
+
+    ELSEIF LOWER(p_attribute) = 'continent' THEN
+        OPEN c_continent;
+        FETCH c_continent INTO v_result;
+        CLOSE c_continent;
+    END IF;
+
+    RETURN v_result;
+END;
+$$
+DELIMITER ;
+
+SELECT fn_get_country_attribute_by_id('COL', 'name');
